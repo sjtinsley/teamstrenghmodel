@@ -1,5 +1,5 @@
 from scipy.stats import skellam
-from averages import *
+# from averages import *
 
 class Match:
     def __init__(self, hometeam, awayteam):
@@ -12,11 +12,11 @@ class Match:
         self.initfindefavg = 1
 
 
-    def playmatch(self, npgoalh, npgoala, npxgh, npxga, pengoalh=0, pengoala=0):
+    def playmatch(self, season, npgoalh, npgoala, npxgh, npxga, pengoalh=0, pengoala=0):
         goalh = npgoalh + pengoalh
         goala = npgoala + pengoala
-        self.predh = self.hometeam.npxgattack * self.awayteam.npxgdefence / npgavg
-        self.preda = self.awayteam.npxgattack * self.hometeam.npxgdefence / npgavg
+        self.predh = self.hometeam.npxgattack * self.awayteam.npxgdefence / season.npgavg()
+        self.preda = self.awayteam.npxgattack * self.hometeam.npxgdefence / season.npgavg()
         self.hometeam.npxgattack = (npxgh - self.predh) * self.npxgspeed + self.hometeam.npxgattack
         self.hometeam.npxgdefence = (npxga - self.preda) * self.npxgspeed + self.hometeam.npxgdefence
         self.awayteam.npxgattack = (npxga - self.preda) * self.npxgspeed + self.awayteam.npxgattack
@@ -25,10 +25,10 @@ class Match:
         self.awayteam.finatt = self.awayteam.finatt + self.finspeed*(npgoala - npxga)/(self.preda)
         self.hometeam.findef = self.hometeam.findef + self.finspeed*(npgoala - npxga)/(self.preda)
         self.awayteam.findef = self.awayteam.findef + self.finspeed*(npgoalh - npxgh)/(self.predh)
-        self.hometeam.attack = self.hometeam.npxgattack * self.hometeam.finatt * findefavg + self.hometeam.penfor/38 * self.hometeam.penconv
-        self.awayteam.attack = self.awayteam.npxgattack * self.awayteam.finatt * findefavg + self.awayteam.penfor/38 * self.awayteam.penconv
-        self.hometeam.defence = self.hometeam.npxgdefence * self.hometeam.findef * finattavg + self.hometeam.penag/38 * self.hometeam.penconv
-        self.awayteam.defence = self.awayteam.npxgdefence * self.awayteam.findef * finattavg + self.awayteam.penag/38 * self.awayteam.penconv
+        self.hometeam.attack = self.hometeam.npxgattack * self.hometeam.finatt * season.findefavg() + self.hometeam.penfor/38 * self.hometeam.penconv
+        self.awayteam.attack = self.awayteam.npxgattack * self.awayteam.finatt * season.findefavg() + self.awayteam.penfor/38 * self.awayteam.penconv
+        self.hometeam.defence = self.hometeam.npxgdefence * self.hometeam.findef * season.finattavg() + self.hometeam.penag/38 * self.hometeam.penconv
+        self.awayteam.defence = self.awayteam.npxgdefence * self.awayteam.findef * season.finattavg() + self.awayteam.penag/38 * self.awayteam.penconv
         self.toplay = False
         self.hometeam.goalsfor += goalh
         self.hometeam.goalsag += goala
@@ -42,9 +42,9 @@ class Match:
         else:
             self.awayteam.points += 3
 
-    def simulatematch(self):
-        self.simhomeg = self.hometeam.attack * self.awayteam.defence / goalsavg
-        self.simawayg = self.awayteam.attack * self.hometeam.defence / goalsavg
+    def simulatematch(self, season):
+        self.simhomeg = self.hometeam.attack * self.awayteam.defence / season.goalsavg()
+        self.simawayg = self.awayteam.attack * self.hometeam.defence / season.goalsavg()
         probaway = skellam.cdf(-1, self.simhomeg, self.simawayg)
         probdraw = skellam.pmf(0, self.simhomeg, self.simawayg)
         probhome = 1 - probaway - probdraw
@@ -55,4 +55,5 @@ class Match:
         self.hometeam.simpts += 3 * probhome + probdraw
         self.awayteam.simpts += 3 * probaway + probdraw
 
-
+    def __str__(self):
+        return f"Match: {self.hometeam} - {self.awayteam}, To Play {self.toplay}, {round(self.simhomeg,1)} - {round(self.simawayg,1)}"
