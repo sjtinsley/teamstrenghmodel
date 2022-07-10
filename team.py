@@ -16,3 +16,6 @@ class Team:
         self.simgf = 0
         self.simga = 0
         self.simpts = 0
+
+    def __str__(self):
+        return self.name

@@ -1,6 +1,6 @@
 from teams2223 import *
 from matches import *
-from averages import *
+# from averages import *
 import pandas as pd
 
 class Season:
@@ -13,7 +13,10 @@ class Season:
         holdtable=[["Team", "Goals For", "Goals Against", "Points"]]
         for m in self.matches:
             if m.toplay:
-                m.simulatematch()
+                m.simulatematch(self)
+                print(str(m))
+                # Optional: update ratings after every game?
+                self.refreshratings()
         for t in self.teams:
             holdtable.append([t.name, t.goalsfor + t.simgf, t.goalsag + t.simga, t.points + t.simpts])
         table = pd.DataFrame(holdtable)
@@ -26,7 +29,19 @@ class Season:
         ratings = pd.DataFrame(holdratings)
         ratings.to_csv('teamratings.csv', index=False, header=False)
 
+    def goalsavg(self):
+        return sum(t.attack for t in self.teams) / 20
+
+    def finattavg(self):
+        return sum(t.finatt for t in self.teams) / 20
+
+    def findefavg(self):
+        return sum(t.findef for t in self.teams) / 20
+
+    def npgavg(self):
+        return sum(t.npxgattack for t in self.teams) / 20
+
     def refreshratings(self):
         for t in self.teams:
-            t.attack = t.npxgattack * (t.finatt * findefavg) + t.penfor/38 * t.penconv
-            t.defence = t.npxgdefence * (t.findef * finattavg) + t.penag / 38 * t.penconv
+            t.attack = t.npxgattack * (t.finatt * self.findefavg()) + t.penfor/38 * t.penconv
+            t.defence = t.npxgdefence * (t.findef * self.finattavg()) + t.penag / 38 * t.penconv
