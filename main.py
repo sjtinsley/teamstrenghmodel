@@ -6,4 +6,4 @@ s.refreshratings()
 # Play matches here
 
 s.getratings()
-s.simulateseason()
+s.getpredictions()

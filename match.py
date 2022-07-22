@@ -1,11 +1,12 @@
 from scipy.stats import skellam
+from speeds import *
 
 class Match:
     def __init__(self, hometeam, awayteam):
         self.hometeam = hometeam
         self.awayteam = awayteam
-        self.npxgspeed = 0.037
-        self.finspeed = 0.0037
+        self.npxgspeed = npxgupdatespeed
+        self.finspeed = finupdatespeed
         self.toplay = True
         self.initfinattavg = 1
         self.initfindefavg = 1
@@ -20,10 +21,10 @@ class Match:
         self.hometeam.npxgdefence = (npxga - self.preda) * self.npxgspeed + self.hometeam.npxgdefence
         self.awayteam.npxgattack = (npxga - self.preda) * self.npxgspeed + self.awayteam.npxgattack
         self.awayteam.npxgdefence = (npxgh - self.predh) * self.npxgspeed + self.awayteam.npxgdefence
-        self.hometeam.finatt = self.hometeam.finatt + self.finspeed*(npgoalh - npxgh)/(self.predh)
-        self.awayteam.finatt = self.awayteam.finatt + self.finspeed*(npgoala - npxga)/(self.preda)
-        self.hometeam.findef = self.hometeam.findef + self.finspeed*(npgoala - npxga)/(self.preda)
-        self.awayteam.findef = self.awayteam.findef + self.finspeed*(npgoalh - npxgh)/(self.predh)
+        self.hometeam.finatt = self.hometeam.finatt + self.finspeed*(npgoalh - npxgh)
+        self.awayteam.finatt = self.awayteam.finatt + self.finspeed*(npgoala - npxga)
+        self.hometeam.findef = self.hometeam.findef + self.finspeed*(npgoala - npxga)
+        self.awayteam.findef = self.awayteam.findef + self.finspeed*(npgoalh - npxgh)
         self.toplay = False
         self.hometeam.goalsfor += goalh
         self.hometeam.goalsag += goala
@@ -38,7 +39,7 @@ class Match:
             self.awayteam.points += 3
         season.refreshratings()
 
-    def simulatematch(self, season):
+    def predictmatch(self, season):
         self.simhomeg = self.hometeam.attack * self.awayteam.defence / season.goalsavg()
         self.simawayg = self.awayteam.attack * self.hometeam.defence / season.goalsavg()
         probaway = skellam.cdf(-1, self.simhomeg, self.simawayg)
