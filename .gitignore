@@ -4,3 +4,5 @@ matches2223.py
 penbase.csv
 __pychache__
 .idea
+.DS_store
+Pipfile.lock
