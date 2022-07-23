@@ -20,3 +20,6 @@ class Team:
         self.predgf = 0
         self.predga = 0
         self.predpts = 0
+        self.schedadjnpxgf = 0
+        self.schedadjnpxga = 0
+        self.matches_played = 0

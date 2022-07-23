@@ -19,9 +19,9 @@ class Season:
         table.to_csv('predictions.csv', index=False, header=False)
 
     def getratings(self):
-        holdratings = [["Team", "Attack", "Defence"]]
+        holdratings = [["Team", "Attack", "Defence", "Played", "Sch NPxG", "Sch NPXG Ag"]]
         for t in self.teams:
-            holdratings.append([t.name, t.attack, t.defence])
+            holdratings.append([t.name, t.attack, t.defence, t.matches_played, t.schedadjnpxgf, t.schedadjnpxga])
         ratings = pd.DataFrame(holdratings)
         ratings.to_csv('teamratings.csv', index=False, header=False)
 
@@ -39,10 +39,12 @@ class Season:
 
     def refreshratings(self):
         for t in self.teams:
-            t.attack = t.npxgattack + (t.finatt + self.findefavg()) + t.penfor/38 * t.penconv
-            t.defence = t.npxgdefence + (t.findef + self.finattavg()) + t.penag / 38 * t.penconv
             t.penfor = t.penfbase + t.npxgattack * 0.0751299
             t.penag = 1.68601137 + t.npxgdefence * 0.0732303
+        self.rebasepens()
+        for t in self.teams:
+            t.attack = t.npxgattack + (t.finatt + self.findefavg()) + t.penfor/38 * t.penconv
+            t.defence = t.npxgdefence + (t.findef + self.finattavg()) + t.penag / 38 * t.penconv
 
     def resetsimulation(self):
         for t in self.teams:

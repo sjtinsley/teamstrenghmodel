@@ -38,6 +38,12 @@ class Match:
             self.awayteam.points += 1
         else:
             self.awayteam.points += 3
+        self.hometeam.schedadnpxgf += npxgh/self.awayteam.defence * season.npgavg() * 2 / (2 + self.homeadvantage)
+        self.awayteam.schedadnpxgf += npxgh/self.hometeam.defence * season.npgavg() * (2 + self.homeadvantage) / 2
+        self.hometeam.schedadnpxga += npxgh/self.awayteam.defence * season.npgavg() * (2 + self.homeadvantage) / 2
+        self.awayteam.schedadnpxga += npxgh/self.hometeam.attack * season.npgavg() * 2 / (2 + self.homeadvantage)
+        self.hometeam.matches_played += 1
+        self.awayteam.matches_played += 1
         season.refreshratings()
 
     def predictmatch(self, season):
