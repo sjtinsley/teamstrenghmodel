@@ -14,7 +14,7 @@ class Season:
             if m.toplay:
                 m.predictmatch(self)
         for t in self.teams:
-            holdtable.append([t.name, t.goalsfor + t.simgf, t.goalsag + t.simga, t.points + t.simpts])
+            holdtable.append([t.name, t.goalsfor + t.predgf, t.goalsag + t.predga, t.points + t.predpts])
         table = pd.DataFrame(holdtable)
         table.to_csv('predictions.csv', index=False, header=False)
 
@@ -50,7 +50,7 @@ class Season:
             t.simgf = 0
             t.simpts = 0
 
-    def simulateseasons(self):
+    def montecarlosims(self):
         column_values1 = ["Team", "Goals For", "Goals Against", "Goal Difference", "Points"]
         column_values2 = ["Team", "Goals For", "Goals Against", "Goal Difference", "Points", "Position"]
         runs = 10000
@@ -64,12 +64,24 @@ class Season:
             for t in self.teams:
                 holdtable.append([t.name, t.goalsfor + t.simgf, t.goalsag + t.simga, t.goalsfor + t.simgf - t.goalsag - t.simga, t.points + t.simpts])
             table = pd.DataFrame(data=np.array(holdtable), columns=column_values1)
-            table["Position"] = 21 - table[["Points","Goal Difference", "Goals For"]].apply(tuple, axis=1).rank()
+            table['Points'] = pd.to_numeric(table['Points'])
+            table['Goal Difference'] = pd.to_numeric(table['Goal Difference'])
+            table['Goals For'] = pd.to_numeric(table['Goals For'])
+            table["Position"] = table[["Points", "Goal Difference", "Goals For"]].apply(tuple, axis=1).rank(ascending=False, method='first')
             table_np = table.to_numpy(copy=True)
             allsims.append(table_np)
-        print(allsims)
         output = pd.DataFrame(np.array(allsims).reshape(20*runs,6), columns=column_values2)
         output.to_csv("simulations.csv", index=False)
+
+    def rebasepens(self):
+        spreadpens = 110
+        currentpensfor = sum(t.penfor for t in self.teams)
+        currentpensag = sum(t.penag for t in self.teams)
+        for t in self.teams:
+            t.penfor = t.penfor * spreadpens / currentpensfor
+            t.penag = t.penag * spreadpens / currentpensag
+
+
 
 
 
