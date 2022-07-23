@@ -17,3 +17,6 @@ class Team:
         self.simgf = 0
         self.simga = 0
         self.simpts = 0
+        self.predgf = 0
+        self.predga = 0
+        self.predpts = 0

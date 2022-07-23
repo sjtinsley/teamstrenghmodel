@@ -6,3 +6,5 @@ __pychache__
 .idea
 .DS_store
 Pipfile.lock
+simulation.csv
+venv

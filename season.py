@@ -42,3 +42,20 @@ class Season:
             t.defence = t.npxgdefence + (t.findef + self.finattavg()) + t.penag / 38 * t.penconv
             t.penfor = t.penfbase + t.npxgattack * 0.0751299
             t.penag = 1.68601137 + t.npxgdefence * 0.0732303
+
+    def resetsimulation(self):
+        for t in self.teams:
+            t.simga = 0
+            t.simgf = 0
+            t.simpts = 0
+
+    def simulateseason(self):
+        self.resetsimulation()
+        holdtable = [["Team", "Goals For", "Goals Against", "Points"]]
+        for m in self.matches:
+            if m.toplay:
+                m.simulatematch(self)
+        for t in self.teams:
+            holdtable.append([t.name, t.goalsfor + t.simgf, t.goalsag + t.simga, t.points + t.simpts])
+        table = pd.DataFrame(holdtable)
+        table.to_csv('simulation.csv', index=False, header=False)
