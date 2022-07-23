@@ -1,6 +1,7 @@
 from teams2223 import *
 from matches2223 import *
 import pandas as pd
+import numpy as np
 
 class Season:
     def __init__(self):
@@ -49,13 +50,26 @@ class Season:
             t.simgf = 0
             t.simpts = 0
 
-    def simulateseason(self):
-        self.resetsimulation()
-        holdtable = [["Team", "Goals For", "Goals Against", "Points"]]
-        for m in self.matches:
-            if m.toplay:
-                m.simulatematch(self)
-        for t in self.teams:
-            holdtable.append([t.name, t.goalsfor + t.simgf, t.goalsag + t.simga, t.points + t.simpts])
-        table = pd.DataFrame(holdtable)
-        table.to_csv('simulation.csv', index=False, header=False)
+    def simulateseasons(self):
+        column_values1 = ["Team", "Goals For", "Goals Against", "Goal Difference", "Points"]
+        column_values2 = ["Team", "Goals For", "Goals Against", "Goal Difference", "Points", "Position"]
+        runs = 10000
+        allsims = []
+        for i in range(runs):
+            holdtable = []
+            self.resetsimulation()
+            for m in self.matches:
+                if m.toplay:
+                    m.simulatematch(self)
+            for t in self.teams:
+                holdtable.append([t.name, t.goalsfor + t.simgf, t.goalsag + t.simga, t.goalsfor + t.simgf - t.goalsag - t.simga, t.points + t.simpts])
+            table = pd.DataFrame(data=np.array(holdtable), columns=column_values1)
+            table["Position"] = 21 - table[["Points","Goal Difference", "Goals For"]].apply(tuple, axis=1).rank()
+            table_np = table.to_numpy(copy=True)
+            allsims.append(table_np)
+        print(allsims)
+        output = pd.DataFrame(np.array(allsims).reshape(20*runs,6), columns=column_values2)
+        output.to_csv("simulations.csv", index=False)
+
+
+
